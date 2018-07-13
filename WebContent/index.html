@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#tabla, .header {
+    border: 1px solid black;
+}
+</style>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<h1 align="center">Seleccione una opcion</h1>
+<br>
+<button onClick="getPeliculas()">Traer peliculas</button><br><br>
+<input id="idPelicula"></input>
+<button onClick="getPeliculaById()">Traer nombre por ID</button>
+
+<p id="respuesta">Respuesta:</p><br>
+<table id="tabla">
+	<tr>
+		<td class="header">ID</td>
+    	<td class="header">Nombre</td>
+    	<td class="header">Año</td>
+	</tr>
+</table>
+</body>
+<script>
+
+function getPeliculas(){
+	var soapMessage = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clas="http://classes/"><soapenv:Header/><soapenv:Body><clas:getPeliculas/></soapenv:Body></soapenv:Envelope>'
+		$.ajax({
+		  url: 'http://localhost:9080/ConsultaPrueba_HTTPRouter/ConsultaServiceService',
+		  type: "POST",
+		  dataType: "xml",
+		  data: soapMessage,
+		  proccesData: true,
+		  contentType: "text/xml; charset=\"utf-8\"",
+		  success: OnSuccess,
+		  error: OnError
+		});
+
+		function OnSuccess(data,status){
+		  console.log(data);
+		  $(data).find('returnPeliculas').each(function(){
+			  var tabla = document.getElementById("tabla");
+			  var fila = tabla.insertRow(1);
+			  var campo3 = fila.insertCell(0);
+			  var campo1 = fila.insertCell(1);
+			  var campo2 = fila.insertCell(2);
+			  campo1.innerHTML = $(this).find("nombre").text();
+			  campo2.innerHTML = $(this).find("year").text();
+			  campo3.innerHTML = $(this).find("id").text();
+			  console.log($(this).text())
+		  })
+		}
+
+		function OnError(request, status, error)
+		    {
+		      console.log(request);
+		    }
+}
+
+function getPeliculaById(){
+	var soapMensajeById = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clas="http://classes/"><soapenv:Header/><soapenv:Body><clas:getPeliculaById><id>'+ $("#idPelicula").val() +'</id></clas:getPeliculaById></soapenv:Body></soapenv:Envelope>';
+	
+	$.ajax({
+		  url: 'http://localhost:9080/ConsultaPrueba_HTTPRouter/ConsultaServiceService',
+		  type: "POST",
+		  dataType: "xml",
+		  data: soapMensajeById,
+		  proccesData: true,
+		  contentType: "text/xml; charset=\"utf-8\"",
+		  success: OnSuccess,
+		  error: OnError
+		});
+
+		function OnSuccess(data,status){
+		  console.log(data);
+		  respuesta.innerHTML = "Respuesta: "+ $(data).find('returnPeliculasById').text();
+		}
+
+		function OnError(request, status, error)
+		    {
+		      console.log(request);
+		    }
+	
+}
+
+/**
+var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open('POST', 'http://localhost:9080/ConsultaPrueba_HTTPRouter/ConsultaServiceService', true);
+
+            // build SOAP request
+            var sr =
+            '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clas="http://classes/">'+
+              '<soapenv:Header/>'+
+              '<soapenv:Body>'+
+                '<clas:getPeliculas/>'+
+                '</soapenv:Body>'+
+            '</soapenv:Envelope>';
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        alert('done. use firebug/console to see network response');
+                    }
+                }
+            }
+            // Send the POST request
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xmlhttp.send(sr);
+            // send request
+            // ...**/
+    </script></html>
